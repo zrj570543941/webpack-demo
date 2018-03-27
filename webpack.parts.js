@@ -1,6 +1,23 @@
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const PurifyCSSPlugin = require("purifycss-webpack");
 
+exports.generateSourceMaps = ({ type }) => ({
+    devtool: type,
+});
+
+exports.loadJavaScript = ({ include, exclude } = {}) => ({
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                include,
+                exclude,
+                use: "babel-loader",
+            },
+        ],
+    },
+});
+
 exports.loadImages = ({ include, exclude, options } = {}) => ({
     module: {
         rules: [
