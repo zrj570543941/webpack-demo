@@ -4,6 +4,25 @@ const CleanWebpackPlugin = require("clean-webpack-plugin");
 const webpack = require("webpack");
 const GitRevisionPlugin = require("git-revision-webpack-plugin");
 const UglifyWebpackPlugin = require("uglifyjs-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+exports.page = ({
+                    path = "",
+                    template = require.resolve(
+                        "html-webpack-plugin/default_index.ejs"
+                    ),
+                    title,
+                    entry,
+                } = {}) => ({
+    entry,
+    plugins: [
+        new HtmlWebpackPlugin({
+            filename: `${path && path + "/"}index.html`,
+            template,
+            title,
+        }),
+    ],
+});
 
 exports.minifyJavaScript = () => ({
     optimization: {
@@ -72,7 +91,7 @@ exports.extractCSS = ({include, exclude, use}) => {
     const plugin = new ExtractTextPlugin({
         // `allChunks` is needed to extract from extracted chunks as well.
         allChunks: true,
-        filename: "[name].css",
+        filename: "[name].[hash:4].css",
     });
     return {
         module: {

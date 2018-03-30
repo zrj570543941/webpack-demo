@@ -1,7 +1,6 @@
 const merge = require("webpack-merge");
 const path = require("path");
 const glob = require("glob");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const parts = require("./webpack.parts");
 
 
@@ -13,26 +12,15 @@ const PATHS = {
 
 const commonConfig = merge(
 
-    {
-        plugins: [
-            new HtmlWebpackPlugin({
-                title: "泛微-协同软件的精英团队",
-            }),
-        ],
-    },
     parts.loadJavaScript({ include: PATHS.app }),
     parts.clean(PATHS.build),
 
-    // {
-    //     entry: {
-    //         main: path.join(__dirname, "src/index.js"),
-    //         another: path.join(__dirname, "src/index2.js"),
-    //     },
-    //     output: {
-    //         filename: '[name].js',
-    //         path: __dirname + '/dist'
-    //     }
-    // },
+    {
+        output: {
+            // Needed for code splitting to work in nested paths
+            publicPath: "/webpack-demo/",
+        },
+    },
 
 );
 
@@ -49,7 +37,7 @@ const productionConfig = merge(
     parts.loadImages({
         options: {
             limit: 50000,
-            name: "[name].[ext]",
+            name: "[name].[hash:4].[ext]",
         },
     }),
 
@@ -66,11 +54,21 @@ const productionConfig = merge(
                     },
                 },
             },
+            runtimeChunk: {
+                name: "manifest",
+            },
         },
     },
 
     // parts.attachRevision(),
     parts.minifyJavaScript(),
+
+    {
+        output: {
+            chunkFilename: "[name].[chunkhash:4].js",
+            filename: "[name].[chunkhash:4].js",
+        },
+    },
 
 
 );
@@ -84,8 +82,31 @@ const developmentConfig = merge(
 
 );
 module.exports = mode => {
-    if (mode === "production") {
-        return merge(commonConfig, productionConfig, {mode});
-    }
-    return merge(commonConfig, developmentConfig, {mode});
+    // const pages = [
+        // parts.page({ title: "Webpack demo" }),
+        // parts.page({ title: "Another demo", path: "another" }),
+    // ];
+
+    const pages = [
+        parts.page({
+            title: "Webpack demo",
+            entry: {
+                app: PATHS.app,
+            },
+        }),
+        parts.page({
+            title: "Another demo",
+            path: "another",
+            entry: {
+                another: path.join(PATHS.app, "another.js"),
+            },
+        }),
+    ];
+
+    const config = mode === "production" ? productionConfig : developmentConfig;
+
+    // return pages.map(page =>
+    //     merge(commonConfig, config, page, { mode })
+    // );
+    return merge(commonConfig, config, pages[0], pages[1], { mode })
 };
