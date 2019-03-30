@@ -18,7 +18,6 @@ const commonConfig = merge(
     {
         output: {
             // Needed for code splitting to work in nested paths
-            publicPath: "/webpack-demo/",
         },
     },
 
@@ -93,6 +92,7 @@ module.exports = mode => {
             entry: {
                 app: PATHS.app,
             },
+            chunks: ["app",],
         }),
         parts.page({
             title: "Another demo",
@@ -100,6 +100,7 @@ module.exports = mode => {
             entry: {
                 another: path.join(PATHS.app, "another.js"),
             },
+            chunks: ["another"],
         }),
     ];
 
@@ -108,5 +109,6 @@ module.exports = mode => {
     // return pages.map(page =>
     //     merge(commonConfig, config, page, { mode })
     // );
-    return merge(commonConfig, config, pages[0], pages[1], { mode })
+    // return merge(commonConfig, config, pages, { mode })
+    return merge([commonConfig, config, { mode }].concat(pages));
 };

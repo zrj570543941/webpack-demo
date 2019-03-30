@@ -5,6 +5,7 @@ const webpack = require("webpack");
 const GitRevisionPlugin = require("git-revision-webpack-plugin");
 const UglifyWebpackPlugin = require("uglifyjs-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const path = require('path');
 
 exports.page = ({
                     path = "",
@@ -13,13 +14,15 @@ exports.page = ({
                     ),
                     title,
                     entry,
+                    chunks,
                 } = {}) => ({
     entry,
     plugins: [
         new HtmlWebpackPlugin({
-            filename: `${path && path + "/"}index.html`,
+            filename: `${path ? path + "/" : path}index.html`,
             template,
             title,
+            chunks,
         }),
     ],
 });
@@ -118,6 +121,7 @@ exports.devServer = ({ host, port } = {}) => ({
         port, // Defaults to 8080
         open: true,
         overlay: true,
+        historyApiFallback: false,
     },
 });
 
